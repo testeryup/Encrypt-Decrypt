@@ -33,7 +33,9 @@
         function caesarCipher(text, shift) {
             return text.replace(/[a-z]/gi, (char) => {
                 const start = char.charCodeAt(0) <= 90 ? 65 : 97;
-                return String.fromCharCode(((char.charCodeAt(0) - start + shift) % 26) + start);
+                const temp = (char.charCodeAt(0) - start + shift) % 26;
+                const result = temp > 0 ? String.fromCharCode(temp + start) : String.fromCharCode(temp + start + 26);
+                return result;
             });
         }
     
