@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypt && Decrypt</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Encryption Tool</h1>
+
+        <label for="plainText">Input Text:</label>
+        <textarea id="plainText" placeholder="Enter plain text here..."></textarea>
+
+        <label for="encryptionType">Type of Encryption:</label>
+        <select id="encryptionType">
+            <option value="ceasar">Caesar Cipher</option>
+            <option value="affine">Affine Cipher</option>
+        </select>
+        <div class="button-group">
+            <button onclick="encrypt()">Encrypt</button>
+            <button onclick="decrypt()">Decrypt</button>
+        </div>
+        <label for="resultText">Result:</label>
+        <textarea id="resultText" placeholder="Encrypted/Decrypted text will appear here..." readonly></textarea>
+        
+    </div>
+
+    <script>
+        // Caesar Cipher (shift by 3)
+        function caesarCipher(text, shift) {
+            return text.replace(/[a-z]/gi, (char) => {
+                const start = char.charCodeAt(0) <= 90 ? 65 : 97;
+                return String.fromCharCode(((char.charCodeAt(0) - start + shift) % 26) + start);
+            });
+        }
+    
+        // Affine Cipher (a=5, b=8 for encryption)
+        function affineCipher(text, a, b, encrypt = true) {
+            const modInverse = (a, m) => {
+                for (let i = 0; i < m; i++) {
+                    if ((a * i) % m === 1) return i;
+                }
+                return 1;
+            };
+    
+            return text.replace(/[a-z]/gi, (char) => {
+                const start = char.charCodeAt(0) <= 90 ? 65 : 97;
+                const x = char.charCodeAt(0) - start;
+                const result = encrypt
+                    ? (a * x + b) % 26
+                    : (modInverse(a, 26) * (x - b + 26)) % 26;
+                return String.fromCharCode(result + start);
+            });
+        }
+    
+        // Main function to handle encryption
+        function encrypt() {
+            const plainText = document.getElementById('plainText').value;
+            const type = document.getElementById('encryptionType').value;
+            let result = '';
+    
+            if (type === 'ceasar') {
+                result = caesarCipher(plainText, 3);
+            } else if (type === 'affine') {
+                result = affineCipher(plainText, 5, 8, true);
+            }
+    
+            document.getElementById('resultText').value = result;
+        }
+    
+        // Main function to handle decryption
+        function decrypt() {
+            const cipherText = document.getElementById('plainText').value;
+            const type = document.getElementById('encryptionType').value;
+            let result = '';
+    
+            if (type === 'ceasar') {
+                result = caesarCipher(cipherText, -3);
+            } else if (type === 'affine') {
+                result = affineCipher(cipherText, 5, 8, false);
+            }
+    
+            document.getElementById('resultText').value = result;
+        }
+    </script>
+</body>
+</html>
