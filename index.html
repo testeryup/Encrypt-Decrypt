@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encrypt && Decrypt</title>
+    <title>Encrypt & Decrypt</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
@@ -18,6 +18,7 @@
         <select id="encryptionType">
             <option value="ceasar">Caesar Cipher</option>
             <option value="affine">Affine Cipher</option>
+            <option value="vigenere">Vigenère</option>
         </select>
         <div class="button-group">
             <button onclick="encrypt()">Encrypt</button>
@@ -25,30 +26,29 @@
         </div>
         <label for="resultText">Result:</label>
         <textarea id="resultText" placeholder="Encrypted/Decrypted text will appear here..." readonly></textarea>
-        
+
     </div>
 
     <script>
         // Caesar Cipher (shift by 3)
         function caesarCipher(text, shift) {
-            return text.replace(/[a-z]/gi, (char) => {
+            return text.replace(/[a-zA-Z]/g, (char) => {
                 const start = char.charCodeAt(0) <= 90 ? 65 : 97;
                 const temp = (char.charCodeAt(0) - start + shift) % 26;
-                const result = temp >= 0 ? String.fromCharCode(temp + start) : String.fromCharCode(temp + start + 26);
-                return result;
+                return String.fromCharCode(temp >= 0 ? temp + start : temp + start + 26);
             });
         }
-    
+
         // Affine Cipher (a=5, b=8 for encryption)
         function affineCipher(text, a, b, encrypt = true) {
             const modInverse = (a, m) => {
                 for (let i = 0; i < m; i++) {
                     if ((a * i) % m === 1) return i;
                 }
-                return 1;
+                return null; // No inverse exists if it returns null
             };
-    
-            return text.replace(/[a-z]/gi, (char) => {
+
+            return text.replace(/[a-zA-Z]/g, (char) => {
                 const start = char.charCodeAt(0) <= 90 ? 65 : 97;
                 const x = char.charCodeAt(0) - start;
                 const result = encrypt
@@ -57,34 +57,64 @@
                 return String.fromCharCode(result + start);
             });
         }
-    
-        // Main function to handle encryption
+
+        function vigenereCipher(text, key, encrypt = true) {
+            let keyIndex = 0;
+            const keyLength = key.length;
+
+            return text.replace(/[a-zA-Z]/g, (char) => {
+                const start = char.charCodeAt(0) <= 90 ? 65 : 97;
+
+                // Get the shift amount from the key
+                const keyChar = key[keyIndex % keyLength].toLowerCase();
+                const shift = keyChar.charCodeAt(0) - 97; // Normalize key character to 0-25
+                let result;
+
+                if (encrypt) {
+                    result = String.fromCharCode(((char.charCodeAt(0) - start + shift) % 26) + start);
+                } else {
+                    result = String.fromCharCode(((char.charCodeAt(0) - start - shift + 26) % 26) + start);
+                }
+
+                // Only increment the key index if the current character is a letter
+                if (/[a-zA-Z]/.test(char)) {
+                    keyIndex += 1;
+                }
+                return result;
+            });
+        }
+
         function encrypt() {
             const plainText = document.getElementById('plainText').value;
             const type = document.getElementById('encryptionType').value;
             let result = '';
-    
+
             if (type === 'ceasar') {
                 result = caesarCipher(plainText, 3);
             } else if (type === 'affine') {
                 result = affineCipher(plainText, 5, 8, true);
+            } else if (type === 'vigenere') {
+                const key = 'XNYAHPOGZQWBTSFLRCVMUEKJDI';
+                result = vigenereCipher(plainText, key, true);
             }
-    
+
             document.getElementById('resultText').value = result;
         }
-    
-        // Main function to handle decryption
+
         function decrypt() {
             const cipherText = document.getElementById('plainText').value;
             const type = document.getElementById('encryptionType').value;
             let result = '';
-    
+
             if (type === 'ceasar') {
                 result = caesarCipher(cipherText, -3);
             } else if (type === 'affine') {
                 result = affineCipher(cipherText, 5, 8, false);
+            } else if (type === 'vigenere') {
+                const key = 'XNYAHPOGZQWBTSFLRCVMUEKJDI';
+                result = vigenereCipher(cipherText, key, false);
             }
-    
+
             document.getElementById('resultText').value = result;
         }
     </script>
