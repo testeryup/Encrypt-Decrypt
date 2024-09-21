@@ -87,7 +87,9 @@ input[type="file"] {
     border-radius: 4px;
     font-size: 14px;
     width: 100%;
-    background-color: beige;
+    background: -webkit-linear-gradient(225deg, rgb(251, 175, 21), rgb(251, 21, 242), rgb(21, 198, 251)) 0% 0% / 300% 300%;
+    -webkit-animation: gradient_move 3s ease infinite;
+    animation: gradient_move 3s ease infinite;
 }
 
 .download-btn {
